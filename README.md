@@ -434,7 +434,3 @@ Contributions are welcome! Please open an issue or submit a pull request.
 ## TODO
 
 - Example with proper styling, better boilerplate.
-
-## License
-
-Peachy is licensed under the MIT License.
