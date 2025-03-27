@@ -1,0 +1,10 @@
+{
+    "name": "Peachy Application",
+    "short_name": "Peachy",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#FF6B3D",
+    "description": "Build modern, high-performance applications with Peachy."
+  }
+  

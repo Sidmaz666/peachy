@@ -91,7 +91,6 @@ Components are the building blocks of a Peachy application. They are defined usi
 Example:
 
 ```js
-
 import { Peachy } from "@peach/component";
 import { Link } from "@peach/router";
 
@@ -112,6 +111,43 @@ export default function Header() {
 }
 ```
 
+#### Component Lifecycle
+
+Peachy components support lifecycle methods that allow you to execute code at specific points in a component's lifecycle. These lifecycle methods are defined as properties on the JSX element returned by the component.
+
+- **beforemount**: Runs before the component is mounted to the DOM.
+- **mount**: Runs immediately after the component is mounted to the DOM.
+- **unmount**: Runs when the component is removed from the DOM.
+
+##### Note: `By default any code is executed upon component mounted to DOM.`
+
+Example:
+
+```js
+import { Peachy } from "@peach/component";
+
+export default function ExampleComponent() {
+  const element = <div>Hello, Peachy!</div>;
+
+  // Define lifecycle methods.
+  element.__lifecycle = {
+    beforemount() {
+      console.log("Component is about to mount.");
+    },
+    mount() {
+      console.log("Component has been mounted.");
+    },
+    unmount() {
+      console.log("Component is being unmounted.");
+    },
+  };
+
+  return element;
+}
+```
+
+The `Peach3dModel` component demonstrates the use of lifecycle methods to manage animations and event listeners. For example, it uses the `mount` method to initialize animations and the `unmount` method to clean up resources like `requestAnimationFrame` and event listeners.
+
 ### State Management
 
 Peachy provides a robust state management system with both local and global state capabilities.
@@ -123,7 +159,6 @@ Local state is managed using the `useState` hook.
 Example:
 
 ```js
-
 import { useState, Peachy } from "@peach/component";
 
 export default function HomePage() {
@@ -145,7 +180,6 @@ Global state is managed using the `AppState` and `PersistedAppState` classes.
 Example:
 
 ```js
-
 import { Peachy } from "@peach/component";
 import { AppState } from "@peach/state";
 
@@ -168,7 +202,6 @@ Peachy uses a file-based routing system similar to Next.js. Routes are defined b
 Example:
 
 ```js
-
 import { useState, Peachy } from "@peach/component";
 import { AppState } from "@peach/state";
 
@@ -202,7 +235,6 @@ Peachy provides several hooks for managing state and side effects.
 Babel is configured to transpile JSX and modern JavaScript features.
 
 ```js
-
 module.exports = {
   presets: [
     ["@babel/preset-env", { targets: "> 0.25%, not dead" }],
@@ -219,7 +251,6 @@ module.exports = {
 Webpack is used to bundle the application.
 
 ```js
-
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -277,7 +308,6 @@ module.exports = {
 Tailwind CSS is used for styling.
 
 ```js
-
 module.exports = {
   content: ["./src/**/*.{js,jsx}", "./public/index.html"],
   theme: { extend: {} },
@@ -291,8 +321,8 @@ module.exports = {
 
 - **Define a Component**: Create a function that returns JSX.
 - **Example**:
+
   ```js
-  
   import { Peachy } from "@peach/component";
   import { Link } from "@peach/router";
 
@@ -317,8 +347,8 @@ module.exports = {
 
 - **Local State**: Use the `useState` hook to manage local state within a component.
 - **Example**:
+
   ```js
-  
   import { useState, Peachy } from "@peach/component";
 
   export default function HomePage() {
@@ -337,8 +367,8 @@ module.exports = {
 
 - **Global State**: Use the `AppState` and `PersistedAppState` classes to manage global state.
 - **Example**:
+
   ```js
-  
   import { Peachy } from "@peach/component";
   import { AppState } from "@peach/state";
 
@@ -358,8 +388,8 @@ module.exports = {
 
 - **Define Routes**: Create files in the `src/app` directory to define routes.
 - **Example**:
+
   ```js
-  
   import { useState, Peachy } from "@peach/component";
   import { AppState } from "@peach/state";
 
@@ -385,8 +415,8 @@ module.exports = {
 
 - **Persistent State**: Use `PersistedAppState` to manage state that persists across sessions using IndexedDB.
 - **Example**:
+
   ```js
-  
   import { useGlobalState, Peachy } from "@peach/component";
   import { PersistedAppState } from "@peach/state";
 
@@ -406,8 +436,8 @@ module.exports = {
 
 - **Dynamic Routing**: Use bracket notation in file names to define dynamic routes.
 - **Example**:
+
   ```js
-  
   import { useState, Peachy } from "@peach/component";
   import { AppState } from "@peach/state";
 

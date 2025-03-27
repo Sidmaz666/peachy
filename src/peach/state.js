@@ -1,10 +1,11 @@
+// state.js
+// Global state with reactivity and persistence using IndexedDB.
 import { encodeState, decodeState } from "@peach/utils";
 
 const STATE_KEY = "__PEACHY_APP_STATE__";
 
 class GlobalState {
   constructor() {
-    // Initialize from window if available or start with an empty state.
     this._rawState = window[STATE_KEY] ? decodeState(window[STATE_KEY]) : {};
     this.subscribers = [];
   }
@@ -17,7 +18,6 @@ class GlobalState {
 
   notify() {
     this.subscribers.forEach((cb) => cb(this._rawState));
-    // Also update the window state with an encrypted version.
     window[STATE_KEY] = encodeState(this._rawState);
   }
 
@@ -46,20 +46,15 @@ class GlobalState {
 }
 
 /**
- * PersistedGlobalState extends GlobalState to persist its data using IndexedDB.
- * It automatically loads the stored state on initialization and persists updates.
+ * PersistedGlobalState persists state using IndexedDB.
  */
 export class PersistedGlobalState extends GlobalState {
-  /**
-   * @param {string} storageKey - The key under which the state is stored.
-   */
   constructor(storageKey = "__PEACHY_PERSISTED_STATE__") {
     super();
     this.storageKey = storageKey;
     this.dbName = "PeachyDB";
     this.storeName = "GlobalState";
     this.db = null;
-    // Initialize IndexedDB (async) and load stored state.
     this.initDB();
   }
 
@@ -77,7 +72,6 @@ export class PersistedGlobalState extends GlobalState {
     };
     request.onerror = (event) => {
       console.error("IndexedDB error during open:", event.target.errorCode);
-      // Fallback: use empty state.
       this._rawState = {};
       this.notify();
     };
@@ -100,7 +94,6 @@ export class PersistedGlobalState extends GlobalState {
       } else {
         this._rawState = {};
       }
-      // Notify subscribers after loading state.
       this.notify();
     };
     getRequest.onerror = (event) => {
@@ -111,20 +104,15 @@ export class PersistedGlobalState extends GlobalState {
   }
 
   notify() {
-    // Persist the encrypted state to IndexedDB.
     if (this.db) {
       const transaction = this.db.transaction([this.storeName], "readwrite");
       const store = transaction.objectStore(this.storeName);
-      const putRequest = store.put(
-        encodeState(this._rawState),
-        this.storageKey
-      );
+      const putRequest = store.put(encodeState(this._rawState), this.storageKey);
       putRequest.onsuccess = () => {
         super.notify();
       };
       putRequest.onerror = (event) => {
         console.error("Failed to persist state:", event.target.errorCode);
-        // Still notify subscribers even if persisting failed.
         super.notify();
       };
     } else {

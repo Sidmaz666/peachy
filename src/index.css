@@ -1,1 +1,352 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 30 33% 99%;
+    --foreground: 20 14.3% 4.1%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+    
+    --primary: 24 100% 50%;
+    --primary-foreground: 60 9.1% 97.8%;
+    
+    --secondary: 60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
+    
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+    
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --ring: 24 100% 50%;
+    
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 60 9.1% 97.8%;
+    
+    --card: 20 14.3% 4.1%;
+    --card-foreground: 60 9.1% 97.8%;
+    
+    --popover: 20 14.3% 4.1%;
+    --popover-foreground: 60 9.1% 97.8%;
+    
+    --primary: 24 100% 50%;
+    --primary-foreground: 60 9.1% 97.8%;
+    
+    --secondary: 12 6.5% 15.1%;
+    --secondary-foreground: 60 9.1% 97.8%;
+    
+    --muted: 12 6.5% 15.1%;
+    --muted-foreground: 24 5.4% 63.9%;
+    
+    --accent: 12 6.5% 15.1%;
+    --accent-foreground: 60 9.1% 97.8%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    
+    --border: 12 6.5% 15.1%;
+    --input: 12 6.5% 15.1%;
+    --ring: 24 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+  }
+
+  .glass {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl;
+  }
+
+  .dark .glass {
+    @apply backdrop-blur-xl bg-black/20 border border-white/10 rounded-2xl;
+  }
+
+  /* Enhanced grid background for hero section */
+  .grid-matrix {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  /* Improved grid background with more visible lines and edge fading */
+  .grid-bg {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background-image: 
+      linear-gradient(to right, rgba(255, 107, 61, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 107, 61, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: 0 0;
+    /* Further enhanced mask for fading in ALL directions - larger gradient especially at top/bottom */
+    mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.4) 50%, transparent 85%);
+    -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0.4) 50%, transparent 85%);
+  }
+
+  .dark .grid-bg {
+    background-image: 
+      linear-gradient(to right, rgba(255, 107, 61, 0.12) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 107, 61, 0.12) 1px, transparent 1px);
+  }
+
+  /* Slower grid line animations - horizontal lines aligned with grid */
+  .grid-horizontal-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0.7;
+  }
+  
+  /* First horizontal animation - aligned to a grid line at 40px from top */
+  .grid-horizontal-lines::before {
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 5%, rgba(255, 107, 61, 0.7) 50%, transparent 95%);
+    animation: grid-horizontal-sweep 8s linear infinite;
+    top: 80px; /* Aligned with grid at 40px * 2 */
+  }
+  
+  /* Second horizontal animation - aligned to a grid line at 200px from top */
+  .grid-horizontal-lines::after {
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 5%, rgba(255, 107, 61, 0.7) 50%, transparent 95%);
+    animation: grid-horizontal-sweep 10s linear infinite 4s;
+    top: 200px; /* Aligned with grid at 40px * 5 */
+  }
+
+  /* Vertical line animations aligned with grid */
+  .grid-vertical-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0.7;
+  }
+  
+  /* First vertical animation - aligned to a grid line at 120px from left */
+  .grid-vertical-lines::before {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent 5%, rgba(255, 107, 61, 0.7) 50%, transparent 95%);
+    animation: grid-vertical-sweep 9s linear infinite 2s;
+    left: 120px; /* Aligned with grid at 40px * 3 */
+  }
+  
+  /* Second vertical animation - aligned to a grid line at 240px from left */
+  .grid-vertical-lines::after {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(180deg, transparent 5%, rgba(255, 107, 61, 0.7) 50%, transparent 95%);
+    animation: grid-vertical-sweep 12s linear infinite 5s;
+    left: 240px; /* Aligned with grid at 40px * 6 */
+  }
+
+  /* Removing the grid-dots class and its animations */
+
+  .glow {
+    position: relative;
+  }
+
+  .glow::before {
+    content: "";
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255, 107, 61, 0.5) 0%, rgba(255, 255, 255, 0) 50%);
+    filter: blur(100px);
+    z-index: -1;
+    opacity: 0.5;
+    animation: pulse-slow 6s ease-in-out infinite;
+  }
+
+  .dark .glow::before {
+    background: radial-gradient(circle at center, rgba(255, 107, 61, 0.4) 0%, rgba(0, 0, 0, 0) 50%);
+  }
+  
+  /* Added smooth scroll for better animation effect */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Enhanced Peach Container Styles */
+  #peach-container {
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+    transform-style: preserve-3d;
+  }
+  
+  #peach-container:hover {
+    transform: scale(1.05);
+  }
+}
+
+@layer utilities {
+  .peach-gradient {
+    background: linear-gradient(135deg, rgba(255, 140, 100, 1) 0%, rgba(255, 107, 61, 1) 100%);
+  }
+
+  .text-gradient {
+    background: linear-gradient(90deg, rgba(255, 140, 100, 1) 0%, rgba(255, 107, 61, 1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  .animation-delay-700 {
+    animation-delay: 700ms;
+  }
+  
+  /* Enhanced animation utilities */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .parallax-slow {
+    transform: translateY(var(--parallax-y, 0));
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes grid-sweep {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Slower horizontal sweep animation */
+@keyframes grid-horizontal-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Slower vertical sweep animation */
+@keyframes grid-vertical-sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+a, button {
+  cursor: pointer;
+}
+
+/* Global Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--primary));
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  filter: brightness(85%);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary)) hsl(var(--background));
+}
+

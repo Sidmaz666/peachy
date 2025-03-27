@@ -4,15 +4,16 @@
 
 import { Peachy } from '@peach/component';
 import Header from "@components/Header";
+import Footer from '@components/Footer';
+
 
 
 export default function Layout() {
   return (
-    <div className="layout bg-gray-900 text-slate-100
-     flex flex-col w-full min-h-screen relative">
-      <Header/>
+    <div className="min-h-screen flex flex-col">
+      <Header />
       <main id="page-content"></main>
-      <footer>© 2025 Peachy Framework Example</footer>
+      <Footer /> 
     </div>
   );
 }

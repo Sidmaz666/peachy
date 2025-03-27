@@ -1,119 +1,255 @@
 // component.js
-// Core component system supporting JSX with full reactivity for component-level state.
-// Includes a hooks mechanism and a mountComponent function that re-renders a component when its local state changes.
+// Enhanced Peachy component system with full nested reactivity, isolated hook contexts,
+// and complete support for HTML/SVG elements with proper namespace and attribute mapping.
 
-// --- Peachy Core Component System ---
-// Peachy is a simple component system that supports JSX and reactivity.
-// Includes a createElement function that transforms JSX into DOM elements,
+const HTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+let currentNamespace = null;
+
 export const Peachy = {
-  // createElement is used by Babel to transform JSX.
-  createElement(type, props, ...children) {
-    if (typeof type === 'function') {
-      return type({ ...props, children });
+  /**
+   * createElement transforms JSX into DOM elements.
+   * For SVG elements, builds them as strings to preserve attribute casing.
+   * For functional components, mounts them into a div container.
+   * Always passes a props object (defaulting to {}) for consistent destructuring.
+   */
+  createElement(type, props = {}, ...children) {
+    // Handle functional components
+    if (typeof type === "function") {
+      const container = document.createElement("div");
+      mountComponent(type, container, { ...props, children });
+      return container;
     }
-    const element = document.createElement(type);
-    if (props) {
-      Object.keys(props).forEach(prop => {
-        if (prop === 'className') {
-          element.setAttribute('class', props[prop]);
-        } else if (prop.startsWith('on') && typeof props[prop] === 'function') {
-          element.addEventListener(prop.substring(2).toLowerCase(), props[prop]);
-        } else if (prop !== 'children') {
-          element.setAttribute(prop, props[prop]);
+
+    // Determine if this is an SVG element
+    const isSvgElement = type === "svg" || currentNamespace === SVG_NAMESPACE;
+    let previousNamespace = currentNamespace;
+
+    if (type === "svg") {
+      currentNamespace = SVG_NAMESPACE;
+    }
+
+    if (isSvgElement) {
+      // Build SVG as a string
+      let svgString = `<${type}`;
+      const eventListeners = [];
+
+      // Add attributes to the string, preserving exact names
+      if (props) {
+        Object.keys(props).forEach((prop) => {
+          if (prop === "className") {
+            svgString += ` class="${props[prop]}"`;
+          } else if (prop.startsWith("on") && typeof props[prop] === "function") {
+            // Store event listeners to apply later
+            eventListeners.push({
+              event: prop.substring(2).toLowerCase(),
+              handler: props[prop],
+            });
+          } else if (prop !== "children") {
+            svgString += ` ${prop}="${props[prop]}"`;
+          }
+        });
+      }
+
+      svgString += ">";
+
+      // Process children
+      children.flat().forEach((child) => {
+        if (typeof child === "string" || typeof child === "number") {
+          svgString += String(child);
+        } else if (child instanceof Node) {
+          // Convert DOM nodes to string representation (simplified)
+          svgString += child.outerHTML;
+        } else if (typeof child === "object" && child.type) {
+          // Recursively build nested SVG elements
+          svgString += this.createElement(child.type, child.props || {}, ...(child.children || []));
         }
       });
-    }
-    children.flat().forEach(child => {
-      if (typeof child === 'string') {
-        element.appendChild(document.createTextNode(child));
-      } else if (child instanceof Node) {
-        element.appendChild(child);
+
+      svgString += `</${type}>`;
+
+      // Parse the string into a DOM element
+      const tempContainer = document.createElement("div");
+      tempContainer.innerHTML = svgString;
+      const element = tempContainer.firstChild;
+
+      // Apply event listeners
+      eventListeners.forEach(({ event, handler }) => {
+        element.addEventListener(event, handler);
+      });
+
+      // Restore namespace
+      if (type === "svg") {
+        currentNamespace = previousNamespace;
       }
-    });
-    return element;
+
+      return element;
+    } else {
+      // Handle standard HTML elements with namespace management
+      const namespace = currentNamespace || HTML_NAMESPACE;
+      const element = document.createElementNS(namespace, type);
+
+      // Set attributes, preserving exact names and values
+      if (props) {
+        Object.keys(props).forEach((prop) => {
+          if (prop === "className") {
+            element.setAttribute("class", props[prop]);
+          } else if (prop.startsWith("on") && typeof props[prop] === "function") {
+            element.addEventListener(prop.substring(2).toLowerCase(), props[prop]);
+          } else if (prop !== "children") {
+            element.setAttribute(prop, props[prop]);
+          }
+        });
+      }
+
+      // Process children
+      children.flat().forEach((child) => {
+        if (typeof child === "string" || typeof child === "number") {
+          element.appendChild(document.createTextNode(String(child)));
+        } else if (child instanceof Node) {
+          element.appendChild(child);
+        }
+      });
+
+      // Restore namespace after processing children of <svg>
+      if (type === "svg") {
+        currentNamespace = previousNamespace;
+      }
+
+      return element;
+    }
   },
 
-  // Render static elements.
+  /**
+   * Renders an element into a container.
+   */
   render(element, container) {
-    container.innerHTML = '';
+    container.innerHTML = "";
     container.appendChild(element);
-  }
+  },
 };
 
-// --- Reactive Hooks System ---
-// Each mounted component gets its own hook storage context. We use a global variable
-// "currentInstance" to associate hook calls during rendering with the component instance.
+// ---------- Hook Context Management ----------
+const instanceStack = [];
+
+function generateUID() {
+  return "_" + Math.random().toString(16).slice(2);
+}
+
+function createComponentContext() {
+  return {
+    id: generateUID(),
+    hooks: [],
+    hookIndex: 0,
+    update: null,
+  };
+}
+
+function pushInstance(instance) {
+  instanceStack.push(instance);
+  currentInstance = instance;
+}
+
+function popInstance() {
+  instanceStack.pop();
+  currentInstance = instanceStack[instanceStack.length - 1] || null;
+}
 
 let currentInstance = null;
 
-export function mountComponent(Component, container) {
-  const instance = {
-    Component,
-    container,
-    hooks: [],
-    hookIndex: 0,
-    update() {
-      this.hookIndex = 0;
-      currentInstance = this;
-      const element = this.Component();
-      this.container.innerHTML = '';
-      this.container.appendChild(element);
+/**
+ * Mounts a component into a container, supporting optional props.
+ * It now also checks for lifecycle callbacks attached to the returned element.
+ * If the component does not return a valid DOM node, we wrap it in a <div>.
+ */
+export function mountComponent(Component, container, props = {}) {
+  const instance = createComponentContext();
+  instance.Component = Component;
+  instance.container = container;
+  instance.props = props;
+  instance.update = function () {
+    instance.hookIndex = 0;
+    currentInstance = instance;
+    const updatedElement = instance.Component(instance.props);
+    if (!(updatedElement instanceof Node)) {
+      throw new Error("Component did not return a valid DOM Node in update cycle.");
     }
+    container.innerHTML = "";
+    container.appendChild(updatedElement);
   };
-  currentInstance = instance;
-  const element = Component();
-  container.innerHTML = '';
+  pushInstance(instance);
+  const element = instance.Component(instance.props);
+  popInstance();
+  if (!(element instanceof Node)) {
+    throw new Error("Component did not return a valid DOM Node.");
+  }
+  // Call lifecycle beforemount if defined
+  const lifecycle = element.__lifecycle || {};
+  if (typeof lifecycle.beforemount === "function") {
+    lifecycle.beforemount();
+  }
+  container.innerHTML = "";
   container.appendChild(element);
+  // Call lifecycle mount if defined; by default this is the main mounting routine.
+  if (typeof lifecycle.mount === "function") {
+    lifecycle.mount();
+  }
+  // Store lifecycle in the instance for unmounting later
+  instance.__lifecycle = lifecycle;
   return instance;
 }
 
+/**
+ * Unmounts a component by calling its unmount lifecycle (if provided) and clearing its container.
+ */
+export function unmountComponent(container) {
+  const child = container.firstChild;
+  if (child && child.__lifecycle && typeof child.__lifecycle.unmount === "function") {
+    child.__lifecycle.unmount();
+  }
+  container.innerHTML = "";
+}
+
+// ---------- Hooks ----------
+/**
+ * useState creates a reactive state value.
+ * Returns [value, setValue].
+ */
 export function useState(initialValue) {
   if (!currentInstance) {
     throw new Error("useState must be called within a component's render cycle.");
   }
-  const hookIndex = currentInstance.hookIndex++;
-  if (currentInstance.hooks.length <= hookIndex) {
-    currentInstance.hooks.push(initialValue);
+  const instance = currentInstance;
+  const hookIndex = instance.hookIndex++;
+  if (instance.hooks.length <= hookIndex) {
+    instance.hooks.push(initialValue);
   }
   const setState = (newVal) => {
-    currentInstance.hooks[hookIndex] = newVal;
-    currentInstance.update();
+    instance.hooks[hookIndex] = newVal;
+    if (instance.update) {
+      instance.update();
+    }
   };
-  const getState =  currentInstance.hooks[hookIndex];
-  return [getState, setState];
+  const value = instance.hooks[hookIndex];
+  return [value, setState];
 }
 
 /**
- * useGlobalState
- * A custom hook that subscribes to changes on a specific key of a global state object.
- * It returns a getter and setter for that global state key.
- *
- * @param {GlobalState} globalState - The global state instance (e.g., PersistentAppState).
- * @param {string} key - The key within the global state.
- * @returns {[function, function]} - A getter function and a setter function.
+ * useGlobalState subscribes to a key in a global state object.
+ * Returns [value, setter]. Optionally accepts a defaultValue.
  */
-export function useGlobalState(globalState, key) {
-  // Initialize the local state with the current global state value.
-  const [getValue, setValue] = useState(globalState.get(key));
-  
-  // Subscribe to global state changes.
-  // Note: In a production-ready hook, you would remove the subscription on unmount.
+export function useGlobalState(globalState, key, defaultValue) {
+  if (globalState.get(key) === undefined && defaultValue !== undefined) {
+    globalState.set(key, defaultValue);
+  }
+  const [value, setValue] = useState(globalState.get(key));
+
   globalState.subscribe((newState) => {
-    // If the global state's key value has changed, update the local state.
-    if (newState[key] !== getValue) {
-      setValue(newState[key]);
-    }
+    setValue(newState[key]);
   });
-  
-  // Return the local getter and a setter that updates the global state.
+
   const setter = (newVal) => {
     globalState.set(key, newVal);
   };
-  return [getValue, setter];
+  return [value, setter];
 }
-
-// (Optional) A helper to unmount a component.
-export function unmountComponent(container) {
-  container.innerHTML = '';
-}
-
