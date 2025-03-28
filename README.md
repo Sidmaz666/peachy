@@ -2,6 +2,8 @@
 
 Peachy is a very minimal, lightweight, secure, and reactive front-end framework designed for building Single Page Applications (SPAs). It offers a robust state management system (local, global and global with persistence), file-based routing, and a component-based architecture with full reactivity. It's a fun project where I have learned a lot about how frontend framework works, still a proof of concept though.
 
+![og-image](https://github.com/user-attachments/assets/ebfbeef3-da5a-4d23-8b24-7a8312232765)
+
 ## Table of Contents
 
 - [Getting Started](#getting-started)
