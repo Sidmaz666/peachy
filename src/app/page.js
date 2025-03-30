@@ -524,6 +524,7 @@ export default function HomePage() {
             fast, modern web applications.
           </p>
 
+
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/docs">
               <Button size="lg">Read the Docs</Button>

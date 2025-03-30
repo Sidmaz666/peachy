@@ -48,7 +48,6 @@ export default function Header() {
             <PeachyLogo className="h-8 w-8" />
             <span className="font-bold text-xl">Peachy</span>
           </Link>
-
           <div className="md:flex hidden items-center gap-8">
             <nav className="flex gap-6">
               <Link

@@ -28,8 +28,8 @@ export default function Docs() {
 
             <CodeBlock
               language="bash"
-              code={`# Clone the repository
-git clone https://github.com/your-repo/peachy.git peachy-app
+              code={`# Run the create-peachy-app command
+npx create-peachy-app peachy-app // <- replace peachy-app with your project name
 
 # Enter the directory
 cd peachy-app

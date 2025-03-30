@@ -16,18 +16,31 @@ export default function Peach3dModel() {
   // Code snippet animation variables.
   // Only using Peachy Application component snippets.
   const snippetPool = [
+    "npx create-peachy-app peachy-app",
     "import { useState } from '@peach/component';",
+    "npx create-peachy-app landing-page",
     "import { useGlobalState } from '@peach/component';",
+    "npx create-peachy-app blog",
     "import { AppState } from '@peach/state';",
+    "npx create-peachy-app docs",
     "import { PersistedAppState } from '@peach/state';",
+    "npx create-peachy-app faq",
     "import { peachyRouter } from '@peach/router';",
+    "npx create-peachy-app peachy-app",
     "export default function Peachy() {",
+    "npx create-peachy-app landing-page",
     "const [state, setState] = useState(false);",
+    "npx create-peachy-app blog",
     "return <div>Hello, Peachy!</div>;",
+    "npx create-peachy-app docs",
     "AppState.subscribe((newState) => {",
+    "npx create-peachy-app faq",
     "console.log('Global state changed:', newState);",
+    "npx create-peachy-app my-app",
     "PersistedAppState.set('theme', 'dark');",
-    "import { Link } from '@peach/router';"
+    "npx create-peachy-app my-app",
+    "import { Link } from '@peach/router';",
+    "npx create-peachy-app my-app",
   ];
   let snippets = []; // Active snippets on screen.
   let lastSnippetTime = 0;
