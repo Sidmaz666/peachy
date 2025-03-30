@@ -2,6 +2,8 @@
 
 Peachy is a very minimal, lightweight, secure, and reactive front-end framework designed for building Single Page Applications (SPAs). It offers a robust state management system (local, global and global with persistence), file-based routing, and a component-based architecture with full reactivity. It's a fun project where I have learned a lot about how frontend framework works, still a proof of concept though.
 
+![og-image](https://github.com/user-attachments/assets/4896b02b-40e1-48f0-9e9c-7e95c888b13a)
+
 ## Table of Contents
 
 - [Getting Started](#getting-started)
@@ -31,9 +33,8 @@ Peachy is a very minimal, lightweight, secure, and reactive front-end framework 
 To get started with Peachy, clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/your-repo/peachy.git peachy-app
+npx create-peachy-app peachy-app
 cd peachy-app
-npm install
 ```
 
 To start the development server:
@@ -460,7 +461,3 @@ module.exports = {
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
-
-## TODO
-
-- Example with proper styling, better boilerplate.
